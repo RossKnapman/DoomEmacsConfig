@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Left right bracket
+# key: lrb
+# type: command
+# --
+(let ((bracket_type (read-string "Bracket type ")))
+(cond
+((string= bracket_type "(") (setq snippet_text "\\left( $1 \\right)$0"))
+((string= bracket_type "[") (setq snippet_text "\\left[ $1 \\right]$0"))
+((string= bracket_type "{") (setq snippet_text "\\left{ $1 \\right}$0"))
+)
+(yas/expand-snippet snippet_text))

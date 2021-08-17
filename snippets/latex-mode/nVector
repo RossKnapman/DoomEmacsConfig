@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nVector
+# key: n
+# --
+\mathbf{n}

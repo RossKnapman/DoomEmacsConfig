@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 3vector
+# key: vec
+# --
+\begin{pmatrix} $1 \\ $2 \\ $3 \end{pmatrix}$0
