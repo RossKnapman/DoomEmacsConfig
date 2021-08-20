@@ -219,7 +219,7 @@
 (defun paste-image ()
   "From clipboard, paste file into images folder with a unique filename and add the link into the file. Requires pngpaste."
 
-  ;; Required to make the function callable
+  ;; Required to make the function callable within Emacs
   (interactive)
 
   ;; Define the filename based on the current time
@@ -241,3 +241,8 @@
   )
 )
 
+;; Disable auto-completion when typing in Org Mode
+;; Don't want to disable globally as used for e.g. finding files to open
+(defun jpk/org-mode-hook ()
+  (company-mode -1))
+(add-hook 'org-mode-hook 'jpk/org-mode-hook)

@@ -61,6 +61,4 @@
 
 (package! yasnippet-snippets)
 
-(package! org-download)
-
 (package! evil-escape :disable t)
