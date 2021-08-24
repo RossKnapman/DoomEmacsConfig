@@ -246,3 +246,8 @@
 (defun jpk/org-mode-hook ()
   (company-mode -1))
 (add-hook 'org-mode-hook 'jpk/org-mode-hook)
+
+;; Use fn as modifier instead of Alt
+(setq mac-function-modifier 'meta)
+(setq mac-option-modifier nil)
+
