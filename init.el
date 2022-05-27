@@ -31,7 +31,7 @@
        ;;deft              ; notational velocity for Emacs
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
-       doom-quit         ; DOOM quit-message prompts when you quit Emacs
+       ;;doom-quit         ; DOOM quit-message prompts when you quit Emacs
        ;;(emoji +unicode)  ; 🙂
        ;;fill-column       ; a `fill-column' indicator
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
@@ -237,7 +237,7 @@
         (message "File pasted successfully")
         (insert (concat "[[" filename "]]"))
     )
-    (message "Failed, possibly nothing in clipboard.")
+    (message "Failed, possibly nothing in clipboard, or pngpaste not installed.")
   )
 )
 
@@ -250,4 +250,35 @@
 ;; Use fn as modifier instead of Alt
 (setq mac-function-modifier 'meta)
 (setq mac-option-modifier nil)
+
+;; Use full width of page in LaTeX export
+(setq org-latex-packages-alist '(("" "fullpage")))
+
+
+(after! org
+
+;; Enable adding link to video
+;; Modified from https://endlessparentheses.com/embedding-youtube-videos-with-org-mode-links.html
+
+(defvar vid-iframe-format
+  ;; You may want to change your width and height.
+  (concat "<iframe width=\"440\""
+          " height=\"335\""
+          " src=\"%s\""
+          " frameborder=\"0\""
+          " allowfullscreen>%s</iframe>"))
+
+(org-add-link-type
+ "vid"
+ (lambda (handle)
+   (browse-url handle))
+ (lambda (path desc backend)
+   (cl-case backend
+     (html (format vid-iframe-format
+                   path (or desc "")))
+     (latex (format "\href{%s}{%s}"
+                    path (or desc "video"))))))
+
+)
+
 
