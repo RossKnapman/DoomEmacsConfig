@@ -259,9 +259,7 @@
 
 ;; Enable adding link to video
 ;; Modified from https://endlessparentheses.com/embedding-youtube-videos-with-org-mode-links.html
-
 (defvar vid-iframe-format
-  ;; You may want to change your width and height.
   (concat "<iframe width=\"440\""
           " height=\"335\""
           " src=\"%s\""
@@ -278,6 +276,18 @@
                    path (or desc "")))
      (latex (format "\href{%s}{%s}"
                     path (or desc "video"))))))
+
+;; Find simulation directory
+
+(org-add-link-type
+  "simdir"
+  (lambda (orgid)
+  	(let* ((simdir (shell-command-to-string (concat "grep -r --include 'orgid' " orgid " ~/Documents/PhD/WorkstationData")))
+	  (simDirTrimmed (nth 0 (split-string simdir "/orgid"))))
+	  (browse-url simDirTrimmed)
+	)
+  )
+)
 
 )
 
