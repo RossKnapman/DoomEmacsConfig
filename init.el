@@ -269,7 +269,7 @@
 (org-add-link-type
  "vid"
  (lambda (handle)
-   (browse-url handle))
+    (browse-url handle))
  (lambda (path desc backend)
    (cl-case backend
      (html (format vid-iframe-format
@@ -285,15 +285,15 @@
   (lambda (orgid)
 
     (let* ((simulation_directory (shell-command-to-string 
-        (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\""))))
-        (browse-url (concat simulation_directory))
+        (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")"))))
+        (browse-url simulation_directory)
     )
   )
 
   ;; What to do when exported
   (lambda (orgid desc backend)
     (let* ((simulation_directory (shell-command-to-string 
-        (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\""))))
+      (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")"))))
       (cl-case backend
         (html (format "<a href=\"file://%s\">%s</a>" simulation_directory (or desc simulation_directory)))
         ;; Could also add export method for e.g. LaTeX here
@@ -314,8 +314,9 @@
     )
     
       (let* ((simulation_directory (shell-command-to-string 
-          (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\""))))
-          (print (concat simulation_directory "/" relDir))
+          ; The echo is to get rid of the trailing newline from the shell command
+          (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")"))))
+          (browse-url (concat simulation_directory "/" relDir))
       )
     )
 	)
@@ -328,7 +329,7 @@
     )
     
       (let* ((simulation_directory (shell-command-to-string 
-          (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\"")))
+          (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")")))
           (video_file (concat simulation_directory "/" relDir))
           )
         (cl-case backend
