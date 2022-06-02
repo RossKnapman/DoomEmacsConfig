@@ -277,15 +277,66 @@
      (latex (format "\href{%s}{%s}"
                     path (or desc "video"))))))
 
-;; Find simulation directory
-
+;; Allow link to simulation directory based on simulatoin "orgid" (note that the database orgids.db must be up-to-date)
 (org-add-link-type
   "simdir"
+
+  ;; What do do when clicked on in Org Mode
   (lambda (orgid)
-  	(let* ((simdir (shell-command-to-string (concat "grep -r --include 'orgid' " orgid " ~/Documents/PhD/WorkstationData")))
-	  (simDirTrimmed (nth 0 (split-string simdir "/orgid"))))
-	  (browse-url simDirTrimmed)
+
+    (let* ((simulation_directory (shell-command-to-string 
+        (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\""))))
+        (browse-url (concat simulation_directory))
+    )
+  )
+
+  ;; What to do when exported
+  (lambda (orgid desc backend)
+    (let* ((simulation_directory (shell-command-to-string 
+        (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\""))))
+      (cl-case backend
+        (html (format "<a href=\"file://%s\">%s</a>" simulation_directory (or desc simulation_directory)))
+        ;; Could also add export method for e.g. LaTeX here
+      )
+    )
+  )
+)
+
+;; Allow link to video when the link path is given in the form orgid_path/to/video.mp4
+(org-add-link-type
+  "simdirvid"
+
+  ;; What do do when clicked on in Org Mode
+  (lambda (orgidAndRelDir)
+    (let (
+      (orgid (nth 0 (split-string orgidAndRelDir "_")))
+      (relDir (nth 1 (split-string orgidAndRelDir "_")))
+    )
+    
+      (let* ((simulation_directory (shell-command-to-string 
+          (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\""))))
+          (print (concat simulation_directory "/" relDir))
+      )
+    )
 	)
+
+  ;; What to do when exported
+  (lambda (orgidAndRelDir desc backend)
+    (let (
+      (orgid (nth 0 (split-string orgidAndRelDir "_")))
+      (relDir (nth 1 (split-string orgidAndRelDir "_")))
+    )
+    
+      (let* ((simulation_directory (shell-command-to-string 
+          (concat "sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\"")))
+          (video_file (concat simulation_directory "/" relDir))
+          )
+        (cl-case backend
+          (html (format vid-iframe-format video_file (or desc "Simulation")))
+          ;; Could also add export method for e.g. LaTeX here
+        )
+      )
+    )
   )
 )
 
