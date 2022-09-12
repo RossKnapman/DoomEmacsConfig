@@ -73,3 +73,5 @@
 (setq org-log-repeat nil)
 
 (setq org-startup-folded t)
+
+(require 'org-id)
