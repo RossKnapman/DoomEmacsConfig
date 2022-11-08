@@ -75,3 +75,5 @@
 (setq org-startup-folded t)
 
 (require 'org-id)
+
+(set-face-attribute 'default nil :height 180)
