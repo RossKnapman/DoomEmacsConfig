@@ -33,7 +33,7 @@
 ;; Wrap in (after! org) to prevent Doom's defaults from overwriting them.
 (after! org
   (setq org-log-done 'time)  ; Timestamp to closed todos
-  )
+)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -77,3 +77,10 @@
 (require 'org-id)
 
 (set-face-attribute 'default nil :height 180)
+
+;; Allow me to type ä ü ö ß without it being annoying
+;(setq mac-option-key-is-meta nil)
+;(setq mac-command-key-is-meta t)
+;(setq mac-command-modifier 'meta)
+;(setq mac-option-modifier nil)
+
