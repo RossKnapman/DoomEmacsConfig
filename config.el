@@ -79,8 +79,8 @@
 (set-face-attribute 'default nil :height 180)
 
 ;; Allow me to type ä ü ö ß without it being annoying
-;(setq mac-option-key-is-meta nil)
-;(setq mac-command-key-is-meta t)
-;(setq mac-command-modifier 'meta)
-;(setq mac-option-modifier nil)
+(setq mac-option-key-is-meta nil)
+(setq mac-command-key-is-meta t)
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier nil)
 
