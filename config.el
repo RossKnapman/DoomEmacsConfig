@@ -82,3 +82,157 @@
 (setq mac-option-modifier 'none)
 (setq mac-left-option-modifier 'none)
 
+;;(use-package! openwith
+;;  :after-call pre-command-hook
+;;  :config
+;;  (openwith-mode t)
+;;  (add-to-list 'openwith-associations '("\\.pdf\\'" "open" (file))))
+
+(use-package pdf-view
+  :hook (pdf-tools-enabled . pdf-view-midnight-minor-mode)
+  :hook (pdf-tools-enabled . hide-mode-line-mode)
+  :config
+  (setq pdf-view-midnight-colors '("#ABB2BF" . "#282C35")))
+
+(use-package doom-snippets
+  :load-path "/Users/rossknapman/Desktop/doom-snippets"
+  :after yasnippet)
+
+(defun my-org-latex-yas ()
+  "Activate org and LaTeX yas expansion in org-mode buffers."
+  (yas-minor-mode)
+  (yas-activate-extra-mode 'latex-mode))
+
+(add-hook 'org-mode-hook #'my-org-latex-yas)
+
+;; Allow triggering of snippets within snippets
+(setq yas-triggers-in-field t)
+
+;; (use-package org-download)
+
+(remove-hook 'org-mode-hook #'auto-fill-mode)
+
+;; Function to paste image into Emacs
+(defun paste-image ()
+  "From clipboard, paste file into images folder with a unique filename and add the link into the file. Requires pngpaste."
+
+  ;; Required to make the function callable within Emacs
+  (interactive)
+
+  ;; Define the filename based on the current time
+  (setq filename
+        (concat
+        "~/org/Images/"
+        (format-time-string "%Y%m%d%H%M%S")  ; Current time
+        ".png"))
+
+  ;; Paste the file using pngpaste
+  (shell-command (concat "pngpaste " filename))
+
+  (if (file-exists-p filename)
+    (progn
+        (message "File pasted successfully")
+        (insert (concat "[[" filename "]]"))
+    )
+    (message "Failed, possibly nothing in clipboard, or pngpaste not installed.")
+  )
+)
+
+;; Disable auto-completion when typing in Org Mode
+;; Don't want to disable globally as used for e.g. finding files to open
+(defun jpk/org-mode-hook ()
+  (company-mode -1))
+(add-hook 'org-mode-hook 'jpk/org-mode-hook)
+
+;; Use full width of page in LaTeX export
+(setq org-latex-packages-alist '(("" "fullpage")))
+
+
+(after! org
+
+;; Enable adding link to video
+;; Modified from https://endlessparentheses.com/embedding-youtube-videos-with-org-mode-links.html
+(defvar vid-iframe-format
+  (concat "<iframe width=\"440\""
+          " height=\"335\""
+          " src=\"%s\""
+          " frameborder=\"0\""
+          " allowfullscreen>%s</iframe>"))
+
+(org-add-link-type
+ "vid"
+ (lambda (handle)
+    (browse-url handle))
+ (lambda (path desc backend)
+   (cl-case backend
+     (html (format vid-iframe-format
+                   path (or desc "")))
+     (latex (format "\href{%s}{%s}"
+                    path (or desc "video"))))))
+
+;; Allow link to simulation directory based on simulatoin "orgid" (note that the database orgids.db must be up-to-date)
+(org-add-link-type
+  "simdir"
+
+  ;; What do do when clicked on in Org Mode
+  (lambda (orgid)
+
+    (let* ((simulation_directory (shell-command-to-string 
+        (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")"))))
+        (browse-url simulation_directory)
+    )
+  )
+
+  ;; What to do when exported
+  (lambda (orgid desc backend)
+    (let* ((simulation_directory (shell-command-to-string 
+      (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")"))))
+      (cl-case backend
+        (html (format "<a href=\"file://%s\">%s</a>" simulation_directory (or desc simulation_directory)))
+        ;; Could also add export method for e.g. LaTeX here
+      )
+    )
+  )
+)
+
+;; Allow link to video when the link path is given in the form orgid_path/to/video.mp4
+(org-add-link-type
+  "simdirvid"
+
+  ;; What do do when clicked on in Org Mode
+  (lambda (orgidAndRelDir)
+    (let (
+      (orgid (nth 0 (split-string orgidAndRelDir "_")))
+      (relDir (nth 1 (split-string orgidAndRelDir "_")))
+    )
+    
+      (let* ((simulation_directory (shell-command-to-string 
+          ; The echo is to get rid of the trailing newline from the shell command
+          (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")"))))
+          (browse-url (concat simulation_directory "/" relDir))
+      )
+    )
+	)
+
+  ;; What to do when exported
+  (lambda (orgidAndRelDir desc backend)
+    (let (
+      (orgid (nth 0 (split-string orgidAndRelDir "_")))
+      (relDir (nth 1 (split-string orgidAndRelDir "_")))
+    )
+    
+      (let* ((simulation_directory (shell-command-to-string 
+          (concat "echo -n $(sqlite3 ~/Documents/PhD/WorkstationData/orgids.db \"SELECT Path FROM OrgIds WHERE OrgId=" orgid ";\")")))
+          (video_file (concat simulation_directory "/" relDir))
+          )
+        (cl-case backend
+          (html (format vid-iframe-format video_file (or desc "Simulation")))
+          ;; Could also add export method for e.g. LaTeX here
+        )
+      )
+    )
+  )
+)
+
+)
+
